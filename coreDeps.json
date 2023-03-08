@@ -1,0 +1,9 @@
+{
+  "*": [["res", "git", "git@github.com:RES-Haxe/res.git"], ["ase"], ["format"]],
+  "hl": [
+    ["res-hl", "git", "git@github.com:RES-Haxe/res-hl.git"],
+    ["hlsdl"],
+    ["hlopenal"]
+  ],
+  "js": [["res-html5", "git", "git@github.com:RES-Haxe/res-html5.git"]]
+}

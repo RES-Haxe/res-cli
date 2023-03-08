@@ -1,0 +1,5 @@
+--cmd rm -rf dist
+--cmd mkdir dist
+--cmd mv out/cpp/Main dist/res
+--cmd cp -r templates dist
+--cmd cp coreDeps.json dist
