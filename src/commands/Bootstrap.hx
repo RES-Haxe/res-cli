@@ -37,9 +37,16 @@ final bootstrap:Command = {
         }
 
         print('install [$platformId]: ${dep[0]} (${src})');
-        if (haxelib(args, (s) -> {}) != 0)
-          error(' Failed');
-        println(' OK');
+
+        final output:Array<String> = [];
+
+        final exitCode = haxelib(args, (s) -> output.push(s), (s) -> output.push(s));
+
+        if (exitCode != 0) {
+          println(' Error');
+          println('  ${output.pop()}');
+        } else
+          println(' OK');
       }
     }
   }

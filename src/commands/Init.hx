@@ -38,7 +38,7 @@ final init:Command = {
     },
     {
       name: 'template',
-      type: STRING,
+      type: ENUM(FileSystem.readDirectory(Path.join([Path.directory(Sys.programPath()), 'templates']))),
       desc: 'Project template',
       defaultValue: () -> 'default',
       requred: true

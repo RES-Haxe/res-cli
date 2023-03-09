@@ -32,6 +32,8 @@ function ask(prompt:String, ?defaultAnswer:String, argType:ArgType = STRING):Str
   final info = switch argType {
     case BOOL:
       defaultAnswer == null ? 'y/n' : defaultAnswer.toLowerCase() == 'y' ? 'Y/n' : 'y/N';
+    case ENUM(_):
+      null;
     case _:
       defaultAnswer;
   };
@@ -42,6 +44,28 @@ function ask(prompt:String, ?defaultAnswer:String, argType:ArgType = STRING):Str
       final ans = String.fromCharCode(Sys.getChar(true)).toLowerCase();
       println('');
       return '${ans == 'y'}';
+    case ENUM(values):
+      println('');
+      for (n in 0...values.length) {
+        final option = values[n];
+        println('${n + 1}) $option');
+      }
+      println('---');
+      println('q) quit');
+      while (true) {
+        print('Choice [${values.indexOf(defaultAnswer) + 1}]: ');
+        final input = Sys.stdin().readLine().trim();
+
+        if (input.toLowerCase() == 'q')
+          Sys.exit(0);
+
+        final num = Std.parseInt(input);
+
+        if (num != null && num > 0 && num <= values.length)
+          return values[num - 1];
+        else
+          println('Invalid choice: $input');
+      }
     case _:
       final input = Sys.stdin().readLine().trim();
       if (input.length == 0)
