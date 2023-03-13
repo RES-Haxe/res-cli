@@ -1,6 +1,7 @@
 import CLI.TextStyle.*;
 import Sys.print;
 import Sys.println;
+import haxe.Json;
 
 using StringTools;
 
@@ -18,64 +19,141 @@ enum ArgType {
   FLOAT;
   BOOL;
   ENUM(values:Array<String>);
+  MULTIPLE(values:Array<String>);
 }
 
 typedef Argument = {
-  name:String,
+  ?name:String,
   desc:String,
   requred:Bool,
-  defaultValue:Void->String,
-  type:ArgType
+  ?defaultValue:Void->String,
+  type:ArgType,
+  ?validator:(value:String) -> {result: Bool, msg: String}
 };
 
-function ask(prompt:String, ?defaultAnswer:String, argType:ArgType = STRING):String {
-  final info = switch argType {
+inline function wrap(x, w)
+  return x < 0 ? w + (x % w) : x >= w ? x % w : x;
+
+function selectionMenu(values:Array<String>, ?preselected:Array<String>, ?multiple:Bool = true) {
+  final selected:Array<String> = preselected != null ? preselected : [];
+  var itemIndex:Int = 0;
+
+  final BO = multiple ? '[' : '(';
+  final BC = multiple ? ']' : ')';
+  final BU = multiple ? '✓' : '•';
+  final instructions = (() -> {
+    final parts = ['[↑]/[↓]: choose'];
+    if (multiple)
+      parts.push('[space]: select/deselect');
+    parts.push('[enter]: done');
+    parts.push('[q]: quit');
+    return parts.join(', ');
+  })();
+
+  final setSingle = function() {
+    if (multiple)
+      return;
+    final val = values[itemIndex];
+    if (selected.length == 0)
+      selected.push(val);
+    else
+      selected[0] = val;
+  };
+
+  while (true) {
+    for (n in 0...values.length) {
+      final val = values[n];
+      final isSelected = selected.indexOf(val) != -1;
+      final current = n == itemIndex;
+      println('${current ? '>' : ' '} ${BO}${isSelected ? BU : current ? '_' : ' '}${BC} $val');
+    }
+
+    println(instructions);
+    final char = Sys.getChar(false);
+
+    switch (char) {
+      case 13:
+        break;
+      case 32:
+        if (multiple) {
+          final val = values[itemIndex];
+          final idx = selected.indexOf(val);
+          if (idx == -1)
+            selected.push(val);
+          else
+            selected.splice(idx, 1);
+        }
+      case 65 | 66:
+        itemIndex = wrap(itemIndex + (char == 65 ? -1 : 1), values.length);
+        setSingle();
+      case 113:
+        return null;
+    }
+
+    for (_ in 0...(values.length + 1))
+      print('\033[1A');
+  }
+
+  // Preserve the order
+  selected.sort((a, b) -> values.indexOf(a) - values.indexOf(b));
+
+  return selected;
+}
+
+function ask(arg:Argument):String {
+  final defaultAnswer = arg.defaultValue != null ? arg.defaultValue() : null;
+
+  final info = switch arg.type {
     case BOOL:
       defaultAnswer == null ? 'y/n' : defaultAnswer.toLowerCase() == 'y' ? 'Y/n' : 'y/N';
     case ENUM(_):
+      null;
+    case MULTIPLE(_):
       null;
     case _:
       defaultAnswer;
   };
 
-  print('${bold(prompt)}${info != null ? ' [$info]' : ''}: ');
-  switch (argType) {
-    case BOOL:
-      final ans = String.fromCharCode(Sys.getChar(true)).toLowerCase();
-      println('');
-      return '${ans == 'y'}';
-    case ENUM(values):
-      println('');
-      for (n in 0...values.length) {
-        final option = values[n];
-        println('${n + 1}) $option');
-      }
-      println('---');
-      println('q) quit');
-      while (true) {
-        print('Choice [${values.indexOf(defaultAnswer) + 1}]: ');
-        final input = Sys.stdin().readLine().trim();
+  print('${bold(arg.desc)}${info != null ? ' [$info]' : ''}: ');
 
-        if (input.toLowerCase() == 'q')
+  while (true) {
+    final result:Null<String> = switch (arg.type) {
+      case BOOL:
+        final ans = String.fromCharCode(Sys.getChar(true)).toLowerCase();
+        println('');
+        '${ans == 'y'}';
+      case ENUM(values):
+        println('');
+        final preselect:Array<String> = [defaultAnswer];
+        final result = selectionMenu(values, preselect, false);
+        if (result == null)
           Sys.exit(0);
+        result[0];
+      case MULTIPLE(values):
+        println('');
+        final preselect:Array<String> = Json.parse(defaultAnswer);
+        final result = selectionMenu(values, preselect);
+        if (result == null)
+          Sys.exit(0);
+        Json.stringify(result);
+      case _:
+        final input = Sys.stdin().readLine().trim();
+        if (input.length == 0) {
+          if (defaultAnswer != null)
+            defaultAnswer;
+          else
+            ask(arg);
+        } else input;
+    }
 
-        final num = Std.parseInt(input);
-
-        if (num != null && num > 0 && num <= values.length)
-          return values[num - 1];
-        else
-          println('Invalid choice: $input');
-      }
-    case _:
-      final input = Sys.stdin().readLine().trim();
-      if (input.length == 0)
-        if (defaultAnswer != null)
-          return defaultAnswer;
-        else
-          return ask(prompt, defaultAnswer, argType);
-      else
-        return input;
+    var valResult;
+    if (arg.validator == null || (valResult = arg.validator(result)).result)
+      return result;
+    else
+      println(valResult.msg);
   }
+
+  return null;
 }
 
 function getArguments(args:Array<String>, expect:Array<Argument>):Map<String, String> {
@@ -85,7 +163,7 @@ function getArguments(args:Array<String>, expect:Array<Argument>):Map<String, St
     result[expect[nArg].name] = if (nArg >= args.length) {
       final arg = expect[nArg];
       if (arg.requred) {
-        ask(arg.desc, arg.defaultValue != null ? arg.defaultValue() : null, arg.type);
+        ask(arg);
       } else
         null;
     } else {

@@ -37,6 +37,13 @@ final init:Command = {
       requred: true
     },
     {
+      name: 'platforms',
+      type: MULTIPLE(['hl', 'js']),
+      desc: 'Platforms to initialize',
+      defaultValue: () -> Json.stringify(['hl', 'js']),
+      requred: true
+    },
+    {
       name: 'template',
       type: ENUM(FileSystem.readDirectory(Path.join([Path.directory(Sys.programPath()), 'templates']))),
       desc: 'Project template',
@@ -53,7 +60,12 @@ final init:Command = {
     if (!FileSystem.exists(templatePath))
       return error('Template <$template> not found');
 
-    final confirm = ask('Initialize a project in $dir', 'n', BOOL);
+    final confirm = ask({
+      desc: 'Initialize a project in $dir',
+      defaultValue: () -> 'n',
+      type: BOOL,
+      requred: true,
+    });
 
     if (confirm != 'true')
       return;
