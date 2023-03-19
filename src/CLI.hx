@@ -174,6 +174,36 @@ function getArguments(args:Array<String>, expect:Array<Argument>):Map<String, St
   return result;
 }
 
+function printTable(rows:Array<Array<String>>, gap:Int = 1, separator:String = '', useHeaders:Bool = false) {
+  if (rows.length == 0)
+    return;
+
+  final col_num = rows[0].length;
+
+  for (row in rows)
+    if (row.length != col_num)
+      throw "All rows must have the same amount of columns";
+
+  final max_lengths:Array<Int> = [for (_ in 0...col_num) 0];
+
+  for (row in rows) {
+    for (n_col => col in row) {
+      max_lengths[n_col] = Std.int(Math.max(col.length, max_lengths[n_col]));
+    }
+  }
+
+  if (useHeaders) {
+    rows.insert(1, [for (n in 0...col_num) ''.rpad('-', max_lengths[n])]);
+  }
+
+  for (row in rows) {
+    for (n_col => col in row) {
+      print('${col.rpad(' ', max_lengths[n_col])}${n_col < row.length - 1 ? separator : ''}${''.lpad(' ', gap)}');
+    }
+    print('\n');
+  }
+}
+
 function error(message:String) {
   Sys.stderr().writeString('Error: $message\n');
   Sys.exit(1);

@@ -13,7 +13,7 @@ function run(cmd:String, args:Array<String>, ?onData:String->Void, ?onError:Stri
 
   final mainThread = Thread.current();
 
-  onData = onData == null ?(s) -> Sys.println(s) : onData;
+  onData = onData == null ?(s) -> Sys.stdout().writeString('$s\n') : onData;
   onError = onError == null ?(s) -> Sys.stderr().writeString('$s\n') : onError;
 
   final proc = new Process(cmd, args);

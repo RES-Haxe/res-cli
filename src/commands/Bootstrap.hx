@@ -5,16 +5,16 @@ import Commands.Command;
 import Sys.print;
 import Sys.println;
 import Tools.haxelib;
-import common.Config.getConfig;
 import common.CoreDeps.getCoreDeps;
+import common.ProjectConfig.getProjectConfig;
 
 using Reflect;
 
 final bootstrap:Command = {
-  desc: 'Install all the dependencies',
+  desc: 'Install all the dependencies for the project',
   args: [],
   func: function(args:Map<String, String>) {
-    final config = getConfig();
+    final config = getProjectConfig();
 
     final dependencies = getCoreDeps();
 
@@ -23,7 +23,7 @@ final bootstrap:Command = {
         dependencies[cast platformId].push(item);
     }
 
-    if (haxelib(['newrepo']) != 0)
+    if (haxelib.run(['newrepo']) != 0)
       error('Filed to create a local repo');
 
     for (platformId => deps in dependencies) {
@@ -40,7 +40,7 @@ final bootstrap:Command = {
 
         final output:Array<String> = [];
 
-        final exitCode = haxelib(args, (s) -> output.push(s), (s) -> output.push(s));
+        final exitCode = haxelib.run(args, (s) -> output.push(s), (s) -> output.push(s));
 
         if (exitCode != 0) {
           println(' Error');

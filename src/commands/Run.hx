@@ -6,7 +6,7 @@ import Hxml.writeHxmlFile;
 import Sys.print;
 import Sys.println;
 import Tools.haxe;
-import common.Config.getConfig;
+import common.ProjectConfig.getProjectConfig;
 import types.ResProjectConfig.PlatformId;
 
 final run:Command = {
@@ -21,7 +21,7 @@ final run:Command = {
     }
   ],
   func: function(args:Map<String, String>) {
-    final config = getConfig();
+    final config = getProjectConfig();
 
     if (['hl', 'js'].indexOf(args['platform']) == -1)
       error('Unsupported platform: "${args['platform']}"');
@@ -31,7 +31,7 @@ final run:Command = {
     final hxmlFile = writeHxmlFile(config, platform);
 
     print('Build: ');
-    final exitCode = haxe([hxmlFile], (s) -> {}, (err) -> {
+    final exitCode = haxe.run([hxmlFile], (s) -> {}, (err) -> {
       Sys.stderr().writeString('$err\n');
     }, true);
     println('');
@@ -43,7 +43,7 @@ final run:Command = {
 
     switch (platform) {
       case hl:
-        Tools.hl(['${config.build.path}/hl/hlboot.dat'], true);
+        Tools.hl.run(['${config.build.path}/hl/hlboot.dat'], true);
       case js:
         Sys.println('TBD');
       case _:

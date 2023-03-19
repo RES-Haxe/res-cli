@@ -1,3 +1,4 @@
+import CLI.error;
 import CLI.getArguments;
 import Commands.commands;
 import Sys.println;
@@ -9,9 +10,9 @@ using StringTools;
 final VERSION = '0.1.0';
 
 function main() {
-  initTools();
+  println('RES Command-line tool v$VERSION (${Sys.systemName()})');
 
-  println('RES Command-line tool v$VERSION');
+  initTools();
 
   commands['help'] = help;
 
@@ -25,7 +26,7 @@ function main() {
       final cmdArgs = getArguments(args.slice(1), cmd.args);
       cmd.func(cmdArgs);
     } else
-      println('Unknown command: $cmdString');
+      error('Unknown command: $cmdString');
   } else
     commands['help'].func([]);
 }

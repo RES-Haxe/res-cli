@@ -1,55 +1,72 @@
 import CLI.error;
-import TermProcess.run;
+import common.CliConfig.getCliConfig;
 import sys.io.Process;
 
 using StringTools;
 
-var gitCmd:String;
-var haxeCmd:String;
-var haxelibCmd:String;
-var hlCmd:String;
-var nodeCmd:String;
-var npmCmd:String;
+class Tool {
+  public final available:Bool;
 
-function initTools() {
-  function check(cmd:String, args:Array<String>) {
-    final proc = new Process(cmd, args);
+  public final name:String;
+  public final version:Null<String>;
+
+  public final cmdPath:String;
+
+  final versionArgs:Array<String>;
+
+  public function getVersion():Null<String> {
+    final proc = new Process(cmdPath, versionArgs);
     final output = proc.stdout.readAll().toString().trim();
     final exitCode = proc.exitCode(true);
 
     if (exitCode != 0)
-      error('$cmd command not found');
+      return null;
+
+    return output;
   }
 
-  gitCmd = 'git';
-  haxeCmd = 'haxe';
-  haxelibCmd = 'haxelib';
-  hlCmd = 'hl';
-  nodeCmd = 'node';
-  npmCmd = 'npm';
+  public function run(args:Array<String>, ?onData:String->Void, ?onError:String->Void, ?printCmd:Bool) {
+    if (!available)
+      error('$name is not available!');
+    return TermProcess.run(cmdPath, args, onData, onError, printCmd);
+  }
 
-  check(haxeCmd, ['--version']);
-  check(haxelibCmd, ['version']);
-  check(hlCmd, ['--version']);
-  check(gitCmd, ['--version']);
-  check(nodeCmd, ['-v']);
-  check(npmCmd, ['-v']);
+  public function new(name:String, cmdPath:String, versionArgs:Array<String>, ?parseVersion:String->String) {
+    this.name = name;
+    this.cmdPath = cmdPath;
+    this.versionArgs = versionArgs;
+    this.version = parseVersion != null ? parseVersion(getVersion()) : getVersion();
+    this.available = version != null;
+  }
 }
 
-function git(args, ?onData, ?onError, ?printCmd)
-  return run(gitCmd, args, onData, onError, printCmd);
+var git:Tool;
+var haxe:Tool;
+var haxelib:Tool;
+var hl:Tool;
+var node:Tool;
+var npm:Tool;
 
-function haxe(args, ?onData, ?onError, ?printCmd)
-  return run(haxeCmd, args, onData, onError, printCmd);
+function initTools() {
+  final cliConfig = getCliConfig();
 
-function haxelib(args, ?onData, ?onError, ?printCmd)
-  return run(haxelibCmd, args, onData, onError, printCmd);
+  function cfgPath(toolName:String, defaultPath:String):String {
+    final cfg_path:String = Reflect.field(cliConfig.tools, toolName);
 
-function hl(args, ?onData, ?onError, ?printCmd)
-  return run(hlCmd, args, onData, onError, printCmd);
+    if (cfg_path != null)
+      return cfg_path;
 
-function node(args, ?onData, ?onError, ?printCmd)
-  return run(nodeCmd, args, onData, onError, printCmd);
+    return defaultPath;
+  }
 
-function npm(args, ?onData, ?onError, ?printCmd)
-  return run(npmCmd, args, onData, onError, printCmd);
+  haxe = new Tool('Haxe Compiler', cfgPath('haxe', 'haxe'), ['--version']);
+  haxelib = new Tool('Haxelib', cfgPath('haxelib', 'haxelib'), ['version']);
+  hl = new Tool('HashLink VM', cfgPath('hl', 'hl'), ['--version']);
+
+  if (!(haxe.available && haxelib.available && hl.available))
+    error("Haxe, Haxelib or HashLink is missing");
+
+  git = new Tool('Git', cfgPath('git', 'git'), ['-v'], (v) -> v.replace('git version', '').trim());
+  node = new Tool('Node.Js', cfgPath('node', 'node'), ['-v'], (v) -> v.substr(1));
+  npm = new Tool('NPM', cfgPath('npm', 'npm'), ['-v']);
+}

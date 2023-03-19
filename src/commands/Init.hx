@@ -5,7 +5,7 @@ import CLI.ask;
 import CLI.error;
 import Commands.Command;
 import Hxml.writeHxmlFile;
-import common.Config.CONFIG_FILENAME;
+import common.ProjectConfig.PROJECT_CONFIG_FILENAME;
 import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
@@ -103,7 +103,7 @@ final init:Command = {
       for (platform in [hl, js])
         writeHxmlFile(projectConfig, platform);
 
-      File.saveContent(CONFIG_FILENAME, Json.stringify(projectConfig, null, '  '));
+      File.saveContent(PROJECT_CONFIG_FILENAME, Json.stringify(projectConfig, null, '  '));
 
       commands.Bootstrap.bootstrap.func([]);
     } catch (error) {

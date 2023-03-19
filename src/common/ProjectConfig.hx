@@ -8,14 +8,14 @@ import types.ResProjectConfig;
 
 using Reflect;
 
-final CONFIG_FILENAME = 'res.json';
+final PROJECT_CONFIG_FILENAME = 'res.json';
 
-function getConfig():ResProjectConfig {
-  if (!FileSystem.exists(CONFIG_FILENAME))
-    error('${CONFIG_FILENAME} is missing in ${Sys.getCwd()}');
+function getProjectConfig():ResProjectConfig {
+  if (!FileSystem.exists(PROJECT_CONFIG_FILENAME))
+    error('${PROJECT_CONFIG_FILENAME} is missing in ${Sys.getCwd()}');
 
   try {
-    final parsedData:Dynamic<String> = Json.parse(File.getContent(CONFIG_FILENAME));
+    final parsedData:Dynamic<String> = Json.parse(File.getContent(PROJECT_CONFIG_FILENAME));
     final result:ResProjectConfig = {
       name: parsedData.field('name'),
       version: parsedData.field('version'),
@@ -33,9 +33,8 @@ function getConfig():ResProjectConfig {
       libs: [_all => [], js => [], hl => []]
     };
 
-    for (platform in parsedData.field('libs').fields()) {
+    for (platform in parsedData.field('libs').fields())
       result.libs[cast platform] = parsedData.field('libs').field(platform);
-    }
 
     return result;
   } catch (err) {
