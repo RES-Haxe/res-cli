@@ -15,14 +15,19 @@ class Tool {
   final versionArgs:Array<String>;
 
   public function getVersion():Null<String> {
-    final proc = new Process(cmdPath, versionArgs);
-    final output = proc.stdout.readAll().toString().trim();
-    final exitCode = proc.exitCode(true);
+    try {
+      final proc = new Process(cmdPath, versionArgs);
+      final output = proc.stdout.readAll().toString().trim();
+      final exitCode = proc.exitCode(true);
 
-    if (exitCode != 0)
+      if (exitCode != 0)
+        return null;
+
+      return output;
+    } catch (error) {
+      Sys.println('${name} getVersion() failed: ${error.message}');
       return null;
-
-    return output;
+    }
   }
 
   public function run(args:Array<String>, ?onData:String->Void, ?onError:String->Void, ?printCmd:Bool) {
