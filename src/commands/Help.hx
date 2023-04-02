@@ -1,6 +1,5 @@
 package commands;
 
-import CLI.TextStyle.*;
 import CLI.error;
 import Commands.Command;
 import Commands.commands;

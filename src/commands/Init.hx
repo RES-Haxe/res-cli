@@ -1,13 +1,12 @@
 package commands;
 
-import OS.appExt;
-import common.CliConfig;
-import OS.copyTree;
-import CLI.TextStyle.*;
 import CLI.ask;
 import CLI.error;
 import Commands.Command;
 import Hxml.writeHxmlFile;
+import OS.appExt;
+import OS.copyTree;
+import common.CliConfig;
 import common.ProjectConfig.PROJECT_CONFIG_FILENAME;
 import haxe.Exception;
 import haxe.Json;
@@ -66,17 +65,6 @@ final init:Command = {
 
     if (!FileSystem.exists(templatePath))
       return error('Template <$template> not found');
-
-    final confirm = ask({
-      desc: 'Initialize a project in $dir',
-      defaultValue: () -> 'n',
-      type: BOOL,
-      requred: true,
-      interactive: true
-    });
-
-    if (confirm != 'true')
-      return;
 
     try {
       FileSystem.createDirectory(dir);

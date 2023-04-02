@@ -1,5 +1,7 @@
 import CLI.error;
+import OS.appExt;
 import common.CliConfig.getCliConfig;
+import haxe.io.Path;
 import sys.io.Process;
 
 using StringTools;
@@ -63,9 +65,11 @@ function initTools() {
     return defaultPath;
   }
 
-  haxe = new Tool('Haxe Compiler', cfgPath('haxe', 'haxe'), ['--version']);
-  haxelib = new Tool('Haxelib', cfgPath('haxelib', 'haxelib'), ['version']);
-  hl = new Tool('HashLink VM', cfgPath('hl', 'hl'), ['--version']);
+  final runtimePath = Path.join([Path.directory(Sys.programPath()), 'runtime']);
+
+  haxe = new Tool('Haxe Compiler', cfgPath('haxe', '$runtimePath/haxe/${appExt('haxe')}'), ['--version']);
+  haxelib = new Tool('Haxelib', cfgPath('haxelib', '$runtimePath/haxe/${appExt('haxelib')}'), ['version']);
+  hl = new Tool('HashLink VM', cfgPath('hl', '$runtimePath/hashlink/${appExt('hl')}'), ['--version']);
 
   if (!(haxe.available && haxelib.available && hl.available))
     error("Haxe, Haxelib or HashLink is missing");

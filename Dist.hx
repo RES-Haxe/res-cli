@@ -1,5 +1,5 @@
-import OS.appExt;
 import Network.downloadFile;
+import OS.appExt;
 import OS.copyTree;
 import OS.extractArchive;
 import OS.wipeDirectory;
@@ -18,7 +18,10 @@ function main() {
   createDirectory('dist');
 
   println('Copy executable');
-  copy(appExt('out/cpp/Main'), appExt('./dist/res'));
+  final res_exe = appExt('./dist/res');
+  copy(appExt('out/cpp/Main'), res_exe);
+  if (Sys.systemName() != 'Windows')
+    Sys.command('chmod', ['+x', res_exe]);
 
   println('Copy templates');
   createDirectory('dist/templates');

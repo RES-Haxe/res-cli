@@ -43,17 +43,10 @@ function wipeDirectory(dirPath:String) {
   if (!FileSystem.isDirectory(dirPath))
     return;
 
-  dirPath = Path.normalize(dirPath);
-
-  for (item in FileSystem.readDirectory(dirPath)) {
-    final fullPath = Path.join([dirPath, item]);
-
-    if (FileSystem.isDirectory(fullPath)) {
-      wipeDirectory(fullPath);
-    } else {
-      FileSystem.deleteFile(fullPath);
-    }
-  }
+  if (Sys.systemName() == 'Windows')
+    command('rmdir', ['/Q', '/S', dirPath]);
+  else
+    command('rm', ['-rf', dirPath]);
 }
 
 /**
