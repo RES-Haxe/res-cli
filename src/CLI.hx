@@ -1,4 +1,3 @@
-import CLI.TextStyle.*;
 import Sys.print;
 import Sys.println;
 import haxe.Json;
@@ -26,6 +25,7 @@ typedef Argument = {
   ?name:String,
   desc:String,
   requred:Bool,
+  interactive:Bool,
   ?defaultValue:Void->String,
   type:ArgType,
   ?validator:(value:String) -> {result: Bool, msg: String}
@@ -40,9 +40,9 @@ function selectionMenu(values:Array<String>, ?preselected:Array<String>, ?multip
 
   final BO = multiple ? '[' : '(';
   final BC = multiple ? ']' : ')';
-  final BU = multiple ? '✓' : '•';
+  final BU = multiple ? 'x' : '*';
   final instructions = (() -> {
-    final parts = ['[↑]/[↓]: choose'];
+    final parts = ['[up]/[down]: choose'];
     if (multiple)
       parts.push('[space]: select/deselect');
     parts.push('[enter]: done');
@@ -114,7 +114,7 @@ function ask(arg:Argument):String {
       defaultAnswer;
   };
 
-  print('${bold(arg.desc)}${info != null ? ' [$info]' : ''}: ');
+  print('${arg.desc}${info != null ? ' [$info]' : ''}: ');
 
   while (true) {
     final result:Null<String> = switch (arg.type) {
@@ -163,7 +163,10 @@ function getArguments(args:Array<String>, expect:Array<Argument>):Map<String, St
     result[expect[nArg].name] = if (nArg >= args.length) {
       final arg = expect[nArg];
       if (arg.requred) {
-        ask(arg);
+        if (arg.interactive)
+          ask(arg);
+        else
+          arg.defaultValue();
       } else
         null;
     } else {

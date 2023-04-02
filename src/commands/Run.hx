@@ -17,7 +17,8 @@ final run:Command = {
       desc: 'Platform to run the programm',
       requred: true,
       defaultValue: () -> 'hl',
-      type: ENUM(['hl', 'js'])
+      type: ENUM(['hl', 'js']),
+      interactive: false
     }
   ],
   func: function(args:Map<String, String>) {

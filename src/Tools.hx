@@ -25,7 +25,6 @@ class Tool {
 
       return output;
     } catch (error) {
-      Sys.println('${name} getVersion() failed: ${error.message}');
       return null;
     }
   }

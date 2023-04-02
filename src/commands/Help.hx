@@ -17,6 +17,7 @@ final help:Command = {
       type: STRING,
       defaultValue: null,
       requred: false,
+      interactive: false,
       desc: 'Command to show help about. If not specified help for all the commands will be showed'
     }
   ],
@@ -31,7 +32,7 @@ final help:Command = {
         arg_command;
       } else null;
 
-    println(bold('RES CLI Help:'));
+    println('RES CLI Help:');
     println('');
     println('  Usage: res [command] [arguments]');
     println('');
@@ -46,7 +47,7 @@ final help:Command = {
     for (cmd => command in commands) {
       if (show_only != null && cmd != show_only)
         continue;
-      println('${bold(cmd)}:');
+      println('${cmd}:');
       println('  ${command.desc}');
 
       if (command.args.length > 0) {
@@ -55,7 +56,7 @@ final help:Command = {
 
         if (command.args.length > 0) {
           for (arg in command.args) {
-            println('    ${bold(arg.name.rpad(' ', longest_param_name))} : ${arg.desc}');
+            println('    ${arg.name.rpad(' ', longest_param_name)} : ${arg.desc}');
           }
         }
       }

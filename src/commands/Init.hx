@@ -1,5 +1,8 @@
 package commands;
 
+import OS.appExt;
+import common.CliConfig;
+import OS.copyTree;
 import CLI.TextStyle.*;
 import CLI.ask;
 import CLI.error;
@@ -27,28 +30,32 @@ final init:Command = {
       type: STRING,
       desc: 'Project name',
       defaultValue: null,
-      requred: true
+      requred: true,
+      interactive: true
     },
     {
       name: 'dir',
       type: STRING,
       desc: 'Project directory',
       defaultValue: () -> Sys.getCwd(),
-      requred: true
+      requred: true,
+      interactive: false
     },
     {
       name: 'platforms',
       type: MULTIPLE(['hl', 'js']),
       desc: 'Platforms to initialize',
       defaultValue: () -> Json.stringify(['hl', 'js']),
-      requred: true
+      requred: true,
+      interactive: false
     },
     {
       name: 'template',
       type: ENUM(FileSystem.readDirectory(Path.join([Path.directory(Sys.programPath()), 'templates']))),
       desc: 'Project template',
       defaultValue: () -> 'default',
-      requred: true
+      requred: true,
+      interactive: false
     }
   ],
   func: function(args:Map<String, String>) {
@@ -65,6 +72,7 @@ final init:Command = {
       defaultValue: () -> 'n',
       type: BOOL,
       requred: true,
+      interactive: true
     });
 
     if (confirm != 'true')
@@ -73,15 +81,14 @@ final init:Command = {
     try {
       FileSystem.createDirectory(dir);
     } catch (error) {
-      Sys.println('${bold('ERROR')}: Couldn\'t create a directory: ${error.message}');
+      Sys.println('ERROR: Couldn\'t create a directory: ${error.message}');
       return;
     }
 
     Sys.setCwd(dir);
 
     try {
-      if (Sys.command('cp', ['-a', '$templatePath/.', '.']) != 0)
-        return error('Failed to copy the template');
+      copyTree(templatePath, dir);
 
       final projectConfig:ResProjectConfig = {
         name: args['name'],
@@ -105,9 +112,21 @@ final init:Command = {
 
       File.saveContent(PROJECT_CONFIG_FILENAME, Json.stringify(projectConfig, null, '  '));
 
+      final runtime_path = Path.join([Path.directory(Sys.programPath()), 'runtime']);
+
+      final cliConfig:CliConfig = {
+        tools: {
+          haxe: Path.join([runtime_path, 'haxe', appExt('haxe')]),
+          haxelib: Path.join([runtime_path, 'haxe', appExt('haxelib')]),
+          hl: Path.join([runtime_path, 'hashlink', appExt('hl')])
+        }
+      };
+
+      File.saveContent(CLI_CONFIG_FILENAME, Json.stringify(cliConfig, null, '  '));
+
       commands.Bootstrap.bootstrap.func([]);
     } catch (error) {
-      Sys.println('${bold('ERROR:')} ${error.message}');
+      Sys.println('ERROR: ${error.message}');
       return;
     }
   }

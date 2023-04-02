@@ -1,9 +1,15 @@
 {
-  "*": [["res", "git", "git@github.com:RES-Haxe/res.git"], ["ase"], ["format"]],
+  "*": [
+    ["res", "git", "https://github.com/RES-Haxe/res.git"],
+    ["ase"],
+    ["format"]
+  ],
   "hl": [
-    ["res-hl", "git", "git@github.com:RES-Haxe/res-hl.git"],
+    ["res-hl", "git", "https://github.com/RES-Haxe/res-hl.git"],
     ["hlsdl"],
     ["hlopenal"]
   ],
-  "js": [["res-html5", "git", "git@github.com:RES-Haxe/res-html5.git"]]
+  "js": [
+    ["res-html5", "git", "https://github.com/RES-Haxe/res-html5.git"]
+  ]
 }
