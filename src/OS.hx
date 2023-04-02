@@ -44,7 +44,7 @@ function wipeDirectory(dirPath:String) {
     return;
 
   if (Sys.systemName() == 'Windows')
-    command('rmdir', ['/Q', '/S', dirPath]);
+    command('cmd', ['/c', 'rmdir', '/Q', '/S', dirPath]);
   else
     command('rm', ['-rf', dirPath]);
 }

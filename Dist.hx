@@ -12,7 +12,7 @@ using haxe.io.Path;
 
 function main() {
   println('Wipe ./dist');
-  wipeDirectory('./dist');
+  wipeDirectory('dist');
 
   println('Create ./dist');
   createDirectory('dist');

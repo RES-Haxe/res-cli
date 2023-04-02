@@ -1,3 +1,5 @@
+hxcpp.hxml
+--next
 -cp .
 -cp src
 -main Dist
