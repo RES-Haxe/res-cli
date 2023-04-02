@@ -10,7 +10,7 @@ using StringTools;
 final VERSION = '0.1.0';
 
 function main() {
-  println('RES Command-line tool v$VERSION (${Sys.systemName()})');
+  println('RES Command-line tool v$VERSION, ${Sys.systemName()}, build date: ${Macros.buildDate()}');
 
   initTools();
 

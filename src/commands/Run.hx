@@ -18,7 +18,8 @@ final run:Command = {
       requred: true,
       defaultValue: () -> 'hl',
       type: ENUM(['hl', 'js']),
-      interactive: false
+      interactive: false,
+      example: 'hl'
     }
   ],
   func: function(args:Map<String, String>) {

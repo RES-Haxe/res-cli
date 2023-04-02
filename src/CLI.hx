@@ -8,6 +8,9 @@ class TextStyle {
   public static function bold(s:String):String
     return '\033[1m$s\033[0m';
 
+  public static function dimmed(s:String):String
+    return '\033[2m$s\033[0m';
+
   public static function italic(s:String):String
     return '\033[3m$s\033[0m';
 }
@@ -22,13 +25,14 @@ enum ArgType {
 }
 
 typedef Argument = {
-  ?name:String,
-  desc:String,
-  requred:Bool,
-  interactive:Bool,
   ?defaultValue:Void->String,
+  ?example:String,
+  ?name:String,
+  ?validator:(value:String) -> {result: Bool, msg: String},
+  desc:String,
+  interactive:Bool,
+  requred:Bool,
   type:ArgType,
-  ?validator:(value:String) -> {result: Bool, msg: String}
 };
 
 inline function wrap(x, w)
@@ -167,7 +171,9 @@ function getArguments(args:Array<String>, expect:Array<Argument>):Map<String, St
           ask(arg);
         else
           arg.defaultValue();
-      } else
+      } else if (arg.defaultValue != null)
+        arg.defaultValue();
+      else
         null;
     } else {
       args[nArg];
@@ -204,6 +210,29 @@ function printTable(rows:Array<Array<String>>, gap:Int = 1, separator:String = '
       print('${col.rpad(' ', max_lengths[n_col])}${n_col < row.length - 1 ? separator : ''}${''.lpad(' ', gap)}');
     }
     print('\n');
+  }
+}
+
+/**
+  Print the text wrapped
+
+  @param text Text to print
+  @param pad Padding
+  @param maxCols Total maximum columns including the padding
+  @param cont Continue output or start as a new line
+**/
+function printWrapped(text:String, pad:Int = 0, ?maxCols:Int = 80, ?cont:Bool = false) {
+  final words = text.split(' ');
+
+  while (words.length > 0) {
+    var currentLine = cont ? '' : ''.lpad(' ', pad);
+    cont = false;
+
+    while (words.length > 0 && '$currentLine${words[0]}'.length < maxCols) {
+      currentLine = '$currentLine${words[0]} ';
+      words.shift();
+    }
+    Sys.println(currentLine.rtrim());
   }
 }
 

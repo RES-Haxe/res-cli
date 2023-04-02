@@ -1,6 +1,5 @@
 package commands;
 
-import CLI.ask;
 import CLI.error;
 import Commands.Command;
 import Hxml.writeHxmlFile;
@@ -10,16 +9,19 @@ import common.CliConfig;
 import common.ProjectConfig.PROJECT_CONFIG_FILENAME;
 import haxe.Exception;
 import haxe.Json;
-import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 import types.ResProjectConfig;
 
 using StringTools;
+using haxe.io.Path;
 
 final RUNTIME_DIR = '.runtime';
 final HAXE_DIR = 'haxe';
 final HL_DIR = 'hl';
+
+function templateList()
+  return FileSystem.readDirectory(Path.join([Sys.programPath().directory(), 'templates']));
 
 final init:Command = {
   desc: 'Initialize a RES project',
@@ -30,31 +32,35 @@ final init:Command = {
       desc: 'Project name',
       defaultValue: null,
       requred: true,
-      interactive: true
+      interactive: true,
+      example: 'My Game'
     },
     {
       name: 'dir',
       type: STRING,
-      desc: 'Project directory',
+      desc: 'Directory to initialize the project in. Use "." to initialize the project in the current directory',
       defaultValue: () -> Sys.getCwd(),
-      requred: true,
-      interactive: false
+      requred: false,
+      interactive: false,
+      example: './my_game'
     },
     {
       name: 'platforms',
       type: MULTIPLE(['hl', 'js']),
-      desc: 'Platforms to initialize',
+      desc: 'List of the platforms to initialize. Use a JSON array to list the platforms. Currently available: hl (HashLink), js (JavaScript)',
       defaultValue: () -> Json.stringify(['hl', 'js']),
-      requred: true,
-      interactive: false
+      requred: false,
+      interactive: false,
+      example: '["hl"]',
     },
     {
       name: 'template',
-      type: ENUM(FileSystem.readDirectory(Path.join([Path.directory(Sys.programPath()), 'templates']))),
-      desc: 'Project template',
+      type: ENUM(templateList()),
+      desc: 'The name of a template to use to initialize the project. Available templates: ${templateList().join(', ')}',
       defaultValue: () -> 'default',
-      requred: true,
-      interactive: false
+      requred: false,
+      interactive: false,
+      example: 'default'
     }
   ],
   func: function(args:Map<String, String>) {
