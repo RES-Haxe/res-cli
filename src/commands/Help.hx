@@ -1,7 +1,5 @@
 package commands;
 
-import CLI.TextStyle.bold;
-import CLI.TextStyle.dimmed;
 import CLI.error;
 import CLI.printWrapped;
 import Commands.Command;
@@ -54,7 +52,7 @@ final help:Command = {
     for (cmd => command in commands) {
       if (show_only != null && cmd != show_only)
         continue;
-      println('${bold(cmd)}:');
+      println('$cmd:');
       printWrapped(command.desc, 2);
       println('');
 
@@ -64,7 +62,7 @@ final help:Command = {
         if (command.args.length > 0) {
           for (arg in command.args) {
             print('    ${arg.name.rpad(' ', longest_param_name)} : ');
-            printWrapped('${arg.requred || arg.defaultValue == null ? '' : dimmed('[optional] ')}${arg.desc}', arg_desc_pad, true);
+            printWrapped('${arg.requred || arg.defaultValue == null ? '' : '[optional] '}${arg.desc}', arg_desc_pad, true);
             if (arg.defaultValue != null && arg.defaultValue() != null)
               printWrapped('Default: ${arg.defaultValue()}', arg_desc_pad);
           }

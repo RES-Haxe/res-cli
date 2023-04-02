@@ -4,17 +4,6 @@ import haxe.Json;
 
 using StringTools;
 
-class TextStyle {
-  public static function bold(s:String):String
-    return '\033[1m$s\033[0m';
-
-  public static function dimmed(s:String):String
-    return '\033[2m$s\033[0m';
-
-  public static function italic(s:String):String
-    return '\033[3m$s\033[0m';
-}
-
 enum ArgType {
   STRING;
   INT;
