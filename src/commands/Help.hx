@@ -70,7 +70,7 @@ final help:Command = {
       }
 
       println('  EXAMPLE:');
-      println('    res $cmd ${command.args.filter(a -> a.example != null).map(a -> a.example).map(a -> Sys.systemName() == 'Windows' ? SysTools.quoteWinArg(a, true) : SysTools.quoteUnixArg(a)).join(' ')}'.rtrim());
+      println('    res $cmd ${command.args.filter(a -> a.example != null).map(a -> a.example).map(a -> Sys.systemName() == 'Windows' ? SysTools.quoteWinArg(a, false) : SysTools.quoteUnixArg(a)).join(' ')}'.rtrim());
       println('');
     }
   }
