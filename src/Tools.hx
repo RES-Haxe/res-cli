@@ -14,16 +14,25 @@ class Tool {
 
   public final cmdPath:String;
 
+  final verboseVersionCheck:Bool;
   final versionArgs:Array<String>;
 
   public function getVersion():Null<String> {
     try {
       final proc = new Process(cmdPath, versionArgs);
       final output = proc.stdout.readAll().toString().trim();
+      final errorOutput = proc.stderr.readAll().toString().trim();
       final exitCode = proc.exitCode(true);
 
-      if (exitCode != 0)
+      if (exitCode != 0) {
+        if (verboseVersionCheck) {
+          Sys.println('$name version check failed');
+          Sys.println('Failed to run $cmdPath ${versionArgs.join(' ')}');
+          Sys.println('stdout: $output');
+          Sys.println('stderr: $errorOutput');
+        }
         return null;
+      }
 
       return output;
     } catch (error) {
@@ -37,10 +46,11 @@ class Tool {
     return TermProcess.run(cmdPath, args, onData, onError, printCmd);
   }
 
-  public function new(name:String, cmdPath:String, versionArgs:Array<String>, ?parseVersion:String->String) {
+  public function new(name:String, cmdPath:String, versionArgs:Array<String>, ?parseVersion:String->String, ?verboseVersionCheck:Bool = false) {
     this.name = name;
     this.cmdPath = cmdPath;
     this.versionArgs = versionArgs;
+    this.verboseVersionCheck = verboseVersionCheck;
     this.version = parseVersion != null ? parseVersion(getVersion()) : getVersion();
     this.available = version != null;
   }
@@ -67,9 +77,9 @@ function initTools() {
 
   final runtimePath = Path.join([Path.directory(Sys.programPath()), 'runtime']);
 
-  haxe = new Tool('Haxe Compiler', cfgPath('haxe', '$runtimePath/haxe/${appExt('haxe')}'), ['--version']);
-  haxelib = new Tool('Haxelib', cfgPath('haxelib', '$runtimePath/haxe/${appExt('haxelib')}'), ['version']);
-  hl = new Tool('HashLink VM', cfgPath('hl', '$runtimePath/hashlink/${appExt('hl')}'), ['--version']);
+  haxe = new Tool('Haxe Compiler', cfgPath('haxe', '$runtimePath/haxe/${appExt('haxe')}'), ['--version'], true);
+  haxelib = new Tool('Haxelib', cfgPath('haxelib', '$runtimePath/haxe/${appExt('haxelib')}'), ['version'], true);
+  hl = new Tool('HashLink VM', cfgPath('hl', '$runtimePath/hashlink/${appExt('hl')}'), ['--version'], true);
 
   if (!(haxe.available && haxelib.available && hl.available)) {
     error('Haxe, Haxelib or HashLink is missing\nPaths used:\n${[haxe.cmdPath, haxelib.cmdPath, hl.cmdPath].join('\n')}');
