@@ -71,8 +71,9 @@ function initTools() {
   haxelib = new Tool('Haxelib', cfgPath('haxelib', '$runtimePath/haxe/${appExt('haxelib')}'), ['version']);
   hl = new Tool('HashLink VM', cfgPath('hl', '$runtimePath/hashlink/${appExt('hl')}'), ['--version']);
 
-  if (!(haxe.available && haxelib.available && hl.available))
-    error("Haxe, Haxelib or HashLink is missing");
+  if (!(haxe.available && haxelib.available && hl.available)) {
+    error('Haxe, Haxelib or HashLink is missing\nPaths used:\n${[haxe.cmdPath, haxelib.cmdPath, hl.cmdPath].join('\n')}');
+  }
 
   git = new Tool('Git', cfgPath('git', 'git'), ['-v'], (v) -> v.replace('git version', '').trim());
   node = new Tool('Node.Js', cfgPath('node', 'node'), ['-v'], (v) -> v.substr(1));
