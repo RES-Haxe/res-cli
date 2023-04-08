@@ -82,7 +82,7 @@ final init:Command = {
     Sys.setCwd(dir);
 
     try {
-      copyTree(templatePath, dir);
+      copyTree(templatePath, '.');
 
       final projectConfig:ResProjectConfig = {
         name: args['name'],

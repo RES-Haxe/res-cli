@@ -9,7 +9,7 @@ enum ProcEvent {
 
 function run(cmd:String, args:Array<String>, ?onData:String->Void, ?onError:String->Void, ?printCmd:Bool = false) {
   if (printCmd)
-    Sys.print('$cmd ${args.join(' ')}');
+    Sys.println('$cmd ${args.join(' ')}');
 
   final mainThread = Thread.current();
 
