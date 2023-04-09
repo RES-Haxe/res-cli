@@ -87,6 +87,11 @@ function initTools() {
     Sys.putEnv('PATH', paths.join(':'));
   }
 
+  git = new Tool('Git', cfgPath('git', 'git'), ['-v'], (v) -> v.replace('git version', '').trim());
+
+  if (!git.available)
+    error('Git is required to run this tool. Please make sure Git is present in the system and available in your PATH\nOfficial Git download page: https://git-scm.com/download');
+
   neko = new Tool('Neko VM', cfgPath('neko', '$runtimePath/neko/${appExt('neko')}'), ['-version'], true);
   haxe = new Tool('Haxe Compiler', cfgPath('haxe', '$runtimePath/haxe/${appExt('haxe')}'), ['--version'], true);
   haxelib = new Tool('Haxelib', cfgPath('haxelib', '$runtimePath/haxe/${appExt('haxelib')}'), ['version'], true);
@@ -95,7 +100,6 @@ function initTools() {
   if (!(haxe.available && haxelib.available && hl.available))
     error('Haxe, Haxelib or HashLink is missing');
 
-  git = new Tool('Git', cfgPath('git', 'git'), ['-v'], (v) -> v.replace('git version', '').trim());
   node = new Tool('Node.Js', cfgPath('node', 'node'), ['-v'], (v) -> v.substr(1));
   npm = new Tool('NPM', cfgPath('npm', 'npm'), ['-v']);
 }

@@ -1,5 +1,6 @@
 package commands;
 
+import Network.downloadFile;
 import CLI.error;
 import Commands.Command;
 import Sys.print;
@@ -28,25 +29,43 @@ final bootstrap:Command = {
 
     for (platformId => deps in dependencies) {
       for (dep in deps) {
-        var args = ['install', dep[0]];
-        var src = 'haxelib';
+        var retries = 1;
+        while (true) {
+          var args = ['install', dep[0]];
+          var src = 'haxelib';
 
-        if (dep.length == 3) {
-          args = [dep[1], dep[0], dep[2]];
-          src = dep[1];
+          if (dep.length == 3) {
+            args = [dep[1], dep[0], dep[2]];
+            src = dep[1];
+          }
+
+          print('install [$platformId]: ${dep[0]} (${src})');
+
+          final output:Array<String> = [];
+
+          final exitCode = haxelib.run(args, (s) -> output.push(s), (s) -> output.push(s));
+
+          if (exitCode != 0) {
+            final errorMessage = output.pop();
+
+            if (errorMessage.toLowerCase().indexOf('certificate verification failed') != -1) {
+              if (retries == 0)
+                return error('Certificate error detected again. Apperently the fix did not work...');
+
+              println('Certificate error detected. Attempting to fix it...');
+              Sys.command('curl https://lib.haxe.org/p/haxelib/4.0.3/download/ -o -');
+              println('Done. Try again...');
+              retries--;
+            } else {
+              println(' Error');
+              println('  ${output.pop()}');
+              break;
+            }
+          } else {
+            println(' OK');
+            break;
+          }
         }
-
-        print('install [$platformId]: ${dep[0]} (${src})');
-
-        final output:Array<String> = [];
-
-        final exitCode = haxelib.run(args, (s) -> output.push(s), (s) -> output.push(s));
-
-        if (exitCode != 0) {
-          println(' Error');
-          println('  ${output.pop()}');
-        } else
-          println(' OK');
       }
     }
   }
