@@ -57,6 +57,7 @@ class Tool {
 }
 
 var git:Tool;
+var neko:Tool;
 var haxe:Tool;
 var haxelib:Tool;
 var hl:Tool;
@@ -77,13 +78,22 @@ function initTools() {
 
   final runtimePath = Path.join([Path.directory(Sys.programPath()), 'runtime']);
 
+  final PATH = Sys.getEnv('PATH');
+  final paths = [PATH, '$runtimePath/neko', '$runtimePath/haxe', '$runtimePath/hashlink'];
+
+  if (Sys.systemName() == 'Windows') {
+    Sys.putEnv('PATH', paths.join(';'));
+  } else {
+    Sys.putEnv('PATH', paths.join(':'));
+  }
+
+  neko = new Tool('Neko VM', cfgPath('neko', '$runtimePath/neko/${appExt('neko')}'), ['-version'], true);
   haxe = new Tool('Haxe Compiler', cfgPath('haxe', '$runtimePath/haxe/${appExt('haxe')}'), ['--version'], true);
   haxelib = new Tool('Haxelib', cfgPath('haxelib', '$runtimePath/haxe/${appExt('haxelib')}'), ['version'], true);
   hl = new Tool('HashLink VM', cfgPath('hl', '$runtimePath/hashlink/${appExt('hl')}'), ['--version'], true);
 
-  if (!(haxe.available && haxelib.available && hl.available)) {
-    error('Haxe, Haxelib or HashLink is missing\nPaths used:\n${[haxe.cmdPath, haxelib.cmdPath, hl.cmdPath].join('\n')}');
-  }
+  if (!(haxe.available && haxelib.available && hl.available))
+    error('Haxe, Haxelib or HashLink is missing');
 
   git = new Tool('Git', cfgPath('git', 'git'), ['-v'], (v) -> v.replace('git version', '').trim());
   node = new Tool('Node.Js', cfgPath('node', 'node'), ['-v'], (v) -> v.substr(1));

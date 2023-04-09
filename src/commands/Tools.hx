@@ -6,6 +6,7 @@ import Tools.git;
 import Tools.haxe;
 import Tools.haxelib;
 import Tools.hl;
+import Tools.neko;
 import Tools.node;
 import Tools.npm;
 
@@ -13,7 +14,7 @@ final tools:Command = {
   desc: "Tools Information",
   args: [],
   func: function(args) {
-    final allTools = [git, haxe, haxelib, hl, node, npm];
+    final allTools = [git, haxe, haxelib, hl, node, npm, neko,];
 
     printTable([['Tool', 'Command', 'Version']].concat([
       for (tl in allTools) {

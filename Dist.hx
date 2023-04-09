@@ -30,15 +30,21 @@ function main() {
   println('Copy coreDeps.json');
   copy('./coreDeps.json', 'dist/coreDeps.json');
 
-  final platform:{haxe:String, hl:String} = switch Sys.systemName().toLowerCase() {
+  final platform:{haxe:String, hl:String, neko:String} = switch Sys.systemName().toLowerCase() {
     case 'windows':
-      {haxe: 'win64.zip', hl: 'win64.zip'};
+      {haxe: 'win64.zip', hl: 'win64.zip', neko: 'win64.zip'};
     case 'linux':
-      {haxe: 'linux64.tar.gz', hl: 'linux-amd64.tar.gz'};
+      {haxe: 'linux64.tar.gz', hl: 'linux-amd64.tar.gz', neko: 'linux64.tar.gz'};
     case 'mac':
-      {haxe: 'osx.tar.gz', hl: 'darwin.tar.gz'};
+      {haxe: 'osx.tar.gz', hl: 'darwin.tar.gz', neko: 'osx64.tar.gz'};
     default: throw 'Unsuppored platform';
   }
+
+  final neko_url = 'https://github.com/HaxeFoundation/neko/releases/download/v2-3-0/neko-2.3.0-${platform.neko}';
+  final neko_archive = neko_url.withoutDirectory();
+
+  if (!exists(neko_archive))
+    downloadFile(neko_url, neko_archive);
 
   final haxe_url = 'https://github.com/HaxeFoundation/haxe/releases/download/4.2.5/haxe-4.2.5-${platform.haxe}';
   final haxe_archive = haxe_url.withoutDirectory();
@@ -54,11 +60,14 @@ function main() {
 
   createDirectory('dist/runtime');
 
+  extractArchive(neko_archive, './dist/runtime');
   extractArchive(haxe_archive, './dist/runtime');
   extractArchive(hl_archive, './dist/runtime');
 
   for (dir in readDirectory('./dist/runtime')) {
-    if (dir.startsWith('haxe'))
+    if (dir.startsWith('neko'))
+      rename('./dist/runtime/$dir', './dist/runtime/neko');
+    else if (dir.startsWith('haxe'))
       rename('./dist/runtime/$dir', './dist/runtime/haxe');
     else if (dir.startsWith('hashlink'))
       rename('./dist/runtime/$dir', './dist/runtime/hashlink');
