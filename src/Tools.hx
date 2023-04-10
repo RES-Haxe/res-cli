@@ -51,7 +51,8 @@ class Tool {
     this.cmdPath = cmdPath;
     this.versionArgs = versionArgs;
     this.verboseVersionCheck = verboseVersionCheck;
-    this.version = parseVersion != null ? parseVersion(getVersion()) : getVersion();
+    final versionCheckResult = getVersion();
+    this.version = versionCheckResult != null ? parseVersion != null ? parseVersion(versionCheckResult) : versionCheckResult : null;
     this.available = version != null;
   }
 }
