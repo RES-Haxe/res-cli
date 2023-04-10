@@ -1,3 +1,4 @@
+import sys.io.Process;
 import Network.downloadFile;
 import OS.appExt;
 import OS.copyTree;
@@ -13,6 +14,8 @@ using haxe.io.Path;
 
 function main() {
   final sys_name = Sys.systemName().toLowerCase();
+
+  final commit_id = new Process('git', ['rev-parse', 'HEAD']).stdout.readAll().toString().trim();
 
   println('Wipe ./dist');
   wipeDirectory('dist');
@@ -76,11 +79,22 @@ function main() {
       rename('./dist/runtime/$dir', './dist/runtime/hashlink');
   }
 
-  final archive_name = 'res-cli-${sys_name}.${sys_name == 'windows' ? 'zip' : 'tar.gz'}'.toLowerCase();
+  final archive_name = 'res-cli-${commit_id.substr(0, 7)}-${sys_name}.${sys_name == 'windows' ? 'zip' : 'tar.gz'}'.toLowerCase();
+
+  println('Create archive: $archive_name');
 
   if (sys_name == 'windows') {
-    command('powershell', ['Compress-Archive', '-Path', './dist/*', '-DestinationPath', archive_name, '-CompressionLevel', 'Optimal']);
+    command('powershell', [
+      'Compress-Archive',
+      '-Path',
+      './dist/*',
+      '-DestinationPath',
+      archive_name,
+      '-CompressionLevel',
+      'Optimal'
+    ]);
   } else {
-    // TODO
+    Sys.setCwd('dist');
+    command('tar', ['-czf', '../$archive_name', '.']);
   }
 }
