@@ -3,6 +3,7 @@ import OS.appExt;
 import OS.copyTree;
 import OS.extractArchive;
 import OS.wipeDirectory;
+import Sys.command;
 import Sys.println;
 import sys.FileSystem.*;
 import sys.io.File.copy;
@@ -11,6 +12,8 @@ using StringTools;
 using haxe.io.Path;
 
 function main() {
+  final sys_name = Sys.systemName().toLowerCase();
+
   println('Wipe ./dist');
   wipeDirectory('dist');
 
@@ -20,7 +23,7 @@ function main() {
   println('Copy executable');
   final res_exe = appExt('./dist/res');
   copy(appExt('out/cpp/Main'), res_exe);
-  if (Sys.systemName() != 'Windows')
+  if (sys_name != 'windows')
     Sys.command('chmod', ['+x', res_exe]);
 
   println('Copy templates');
@@ -30,7 +33,7 @@ function main() {
   println('Copy coreDeps.json');
   copy('./coreDeps.json', 'dist/coreDeps.json');
 
-  final platform:{haxe:String, hl:String, neko:String} = switch Sys.systemName().toLowerCase() {
+  final platform:{haxe:String, hl:String, neko:String} = switch sys_name {
     case 'windows':
       {haxe: 'win64.zip', hl: 'win64.zip', neko: 'win64.zip'};
     case 'linux':
@@ -71,5 +74,13 @@ function main() {
       rename('./dist/runtime/$dir', './dist/runtime/haxe');
     else if (dir.startsWith('hashlink'))
       rename('./dist/runtime/$dir', './dist/runtime/hashlink');
+  }
+
+  final archive_name = 'res-cli-${sys_name}.${sys_name == 'windows' ? 'zip' : 'tar.gz'}'.toLowerCase();
+
+  if (sys_name == 'windows') {
+    command('powershell', ['Compress-Archive', '-Path', './dist/*', '-DestinationPath', archive_name, '-CompressionLevel', 'Optimal']);
+  } else {
+    // TODO
   }
 }
