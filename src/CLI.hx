@@ -14,7 +14,7 @@ enum ArgType {
 }
 
 typedef Argument = {
-  ?defaultValue:Void->String,
+  ?defaultValue:(?prev:Map<String, String>) -> String,
   ?example:String,
   ?name:String,
   ?validator:(value:String) -> {result: Bool, msg: String},
@@ -159,9 +159,9 @@ function getArguments(args:Array<String>, expect:Array<Argument>):Map<String, St
         if (arg.interactive)
           ask(arg);
         else
-          arg.defaultValue();
+          arg.defaultValue(result);
       } else if (arg.defaultValue != null)
-        arg.defaultValue();
+        arg.defaultValue(result);
       else
         null;
     } else {

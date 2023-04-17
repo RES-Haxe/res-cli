@@ -16,7 +16,7 @@ final run:Command = {
       name: 'platform',
       desc: 'Platform to run the programm',
       requred: true,
-      defaultValue: () -> 'hl',
+      defaultValue: (?prev) -> 'hl',
       type: ENUM(['hl', 'js']),
       interactive: false,
       example: 'hl'

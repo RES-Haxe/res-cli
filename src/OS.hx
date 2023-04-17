@@ -57,3 +57,23 @@ function extractArchive(archive:String, dest:String)
 
 function appExt(name:String)
   return Sys.systemName().toLowerCase() == 'windows' ? '$name.exe' : name;
+
+function relativizePath(basePath:String, path:String):String {
+  final baseParts = Path.normalize(basePath).split('/');
+  final pathParts = Path.normalize(path).split('/');
+
+  final result:Array<String> = [];
+
+  while (baseParts[0] == pathParts[0]) {
+    baseParts.shift();
+    pathParts.shift();
+  }
+
+  for (_ in baseParts)
+    result.push('..');
+
+  for (part in pathParts)
+    result.push(part);
+
+  return result.join('/');
+}

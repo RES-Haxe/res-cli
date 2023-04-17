@@ -17,7 +17,7 @@ final help:Command = {
     {
       name: 'command',
       type: STRING,
-      defaultValue: () -> null,
+      defaultValue: (?prev) -> null,
       requred: false,
       interactive: false,
       desc: 'Command to show help about. If not specified help for all the commands will be shown',

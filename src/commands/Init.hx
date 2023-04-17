@@ -1,11 +1,15 @@
 package commands;
 
+import OS.relativizePath;
+import CLI.printWrapped;
+import CLI.wrap;
 import CLI.ask;
 import CLI.error;
 import Commands.Command;
 import Hxml.writeHxmlFile;
 import OS.appExt;
 import OS.copyTree;
+import Sys.println;
 import common.CliConfig;
 import common.ProjectConfig.PROJECT_CONFIG_FILENAME;
 import haxe.Exception;
@@ -40,7 +44,7 @@ final init:Command = {
       name: 'dir',
       type: STRING,
       desc: 'Directory to initialize the project in. Use "." to initialize the project in the current directory',
-      defaultValue: () -> Sys.getCwd(),
+      defaultValue: (?prev) -> Path.join([Sys.getCwd(), prev['name']]),
       requred: false,
       interactive: false,
       example: './my_game'
@@ -49,7 +53,7 @@ final init:Command = {
       name: 'platforms',
       type: MULTIPLE(['hl', 'js']),
       desc: 'List of the platforms to initialize. Use a JSON array to list the platforms. Currently available: hl (HashLink), js (JavaScript)',
-      defaultValue: () -> Json.stringify(['hl', 'js']),
+      defaultValue: (?prev) -> Json.stringify(['hl', 'js']),
       requred: false,
       interactive: false,
       example: '["hl"]',
@@ -58,14 +62,22 @@ final init:Command = {
       name: 'template',
       type: ENUM(templateList()),
       desc: 'The name of a template to use to initialize the project. Available templates: ${templateList().join(', ')}',
-      defaultValue: () -> 'default',
+      defaultValue: (?prev) -> 'default',
       requred: false,
       interactive: false,
       example: 'default'
     }
   ],
   func: function(args:Map<String, String>) {
-    final dir = Path.normalize(args['dir']);
+    final dir = Path.normalize(Path.isAbsolute(args['dir']) ? args['dir'] : Path.join([Sys.getCwd(), args['dir']]));
+
+    if (!FileSystem.exists(dir)) {
+      try {
+        FileSystem.createDirectory(dir);
+      } catch (error) {
+        return CLI.error(error.message);
+      }
+    }
 
     if (FileSystem.readDirectory(dir).length > 0) {
       if (ask({
@@ -73,7 +85,7 @@ final init:Command = {
         type: BOOL,
         requred: true,
         interactive: true,
-        defaultValue: () -> 'false'
+        defaultValue: (?prev) -> 'false'
       }) == 'false')
         Sys.exit(0);
     }
@@ -85,14 +97,10 @@ final init:Command = {
     if (!FileSystem.exists(templatePath))
       return error('Template <$template> not found');
 
-    try {
-      FileSystem.createDirectory(dir);
-    } catch (error) {
-      Sys.println('ERROR: Couldn\'t create a directory: ${error.message}');
-      return;
-    }
-
+    final currentDir = Path.normalize(Sys.getCwd());
     Sys.setCwd(dir);
+
+    println('Initializing a RES project in: $dir...');
 
     try {
       copyTree(templatePath, '.');
@@ -132,9 +140,13 @@ final init:Command = {
       File.saveContent(CLI_CONFIG_FILENAME, Json.stringify(cliConfig, null, '  '));
 
       commands.Bootstrap.bootstrap.func([]);
+
+      println('Done! Now you can test the newly created project by running:');
+      if (currentDir != dir)
+        println('  cd ${relativizePath(currentDir, dir)}');
+      println('  res run');
     } catch (error) {
-      Sys.println('ERROR: ${error.message}');
-      return;
+      return CLI.error('ERROR: ${error.message}');
     }
   }
 };
