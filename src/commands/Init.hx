@@ -1,14 +1,12 @@
 package commands;
 
-import OS.relativizePath;
-import CLI.printWrapped;
-import CLI.wrap;
 import CLI.ask;
 import CLI.error;
 import Commands.Command;
 import Hxml.writeHxmlFile;
 import OS.appExt;
 import OS.copyTree;
+import OS.relativizePath;
 import Sys.println;
 import common.CliConfig;
 import common.ProjectConfig.PROJECT_CONFIG_FILENAME;

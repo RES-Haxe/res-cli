@@ -1,6 +1,5 @@
 package commands;
 
-import Network.downloadFile;
 import CLI.error;
 import Commands.Command;
 import Sys.print;
