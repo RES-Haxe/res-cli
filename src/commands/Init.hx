@@ -1,5 +1,6 @@
 package commands;
 
+import CLI.ask;
 import CLI.error;
 import Commands.Command;
 import Hxml.writeHxmlFile;
@@ -65,6 +66,18 @@ final init:Command = {
   ],
   func: function(args:Map<String, String>) {
     final dir = Path.normalize(args['dir']);
+
+    if (FileSystem.readDirectory(dir).length > 0) {
+      if (ask({
+        desc: 'Directory $dir is not empty. Are you sure you want to proceed?',
+        type: BOOL,
+        requred: true,
+        interactive: true,
+        defaultValue: () -> 'false'
+      }) == 'false')
+        Sys.exit(0);
+    }
+
     final template = args['template'];
 
     final templatePath = Path.join([Path.directory(Sys.programPath()), 'templates', template]);
