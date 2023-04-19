@@ -1,12 +1,4 @@
 import Bios.bios;
-import res.RES;
-import res.State;
-import res.display.FrameBuffer;
-import res.rom.Rom;
-import res.tools.MathTools.clamp;
-import res.tools.RNG;
-
-using Std;
 
 final RES_LABEL = 'R E S';
 final LABEL_SPEED = 50; // pixels per second
@@ -26,8 +18,8 @@ class MainState extends State {
     yBound = res.height - labelSize.height;
 
     pos = {
-      x: RNG.rangef(0, xBound),
-      y: RNG.rangef(0, yBound)
+      x: rangef(0, xBound),
+      y: rangef(0, yBound)
     };
 
     move = {
