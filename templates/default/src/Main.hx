@@ -40,15 +40,22 @@ class MainState extends State {
     pos.x += move.dx * (LABEL_SPEED * dt);
     pos.y += move.dy * (LABEL_SPEED * dt);
 
+    var hasHit = false;
+
     if (pos.x < 0 || pos.x > xBound) {
       pos.x = clamp(pos.x, 0, xBound);
       move.dx *= -1;
+      hasHit = true;
     }
 
     if (pos.y < 0 || pos.y > yBound) {
       pos.y = clamp(pos.y, 0, yBound);
       move.dy *= -1;
+      hasHit = true;
     }
+
+    if (hasHit)
+      audioMixer.play('hitHurt');
   }
 
   override function render(fb:FrameBuffer) {
