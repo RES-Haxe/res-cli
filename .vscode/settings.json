@@ -1,0 +1,11 @@
+{
+  "terminal.integrated.env.linux": {
+    "PATH": "${env:PATH}:./dist"
+  },
+  "terminal.integrated.env.osx": {
+    "PATH": "${env:PATH}:./dist"
+  },
+  "terminal.integrated.env.windows": {
+    "PATH": "${env:PATH};./dist"
+  }
+}

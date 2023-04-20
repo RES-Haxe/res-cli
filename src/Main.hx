@@ -1,4 +1,3 @@
-import OS.resCliDir;
 import CLI.error;
 import CLI.getArguments;
 import Commands.commands;
@@ -12,7 +11,7 @@ final VERSION = '0.1.0';
 
 class Main {
   public static function main() {
-    println('RES Command-line tool v$VERSION, ${Sys.systemName()}, build date: ${Macros.buildDate()}');
+    println('RES Command-line tool v$VERSION, ${Sys.systemName()}' #if !interp + ', build date: ${Macros.buildDate()}' #else + ', Interp' #end);
 
     initTools();
 
