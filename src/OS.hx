@@ -77,3 +77,10 @@ function relativizePath(basePath:String, path:String):String {
 
   return result.join('/');
 }
+
+function resCliDir()
+  #if interp
+  return Path.normalize('${Path.directory(Sys.programPath())}/..');
+  #else
+  return Path.directory(Sys.programPath());
+  #end

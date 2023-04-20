@@ -1,5 +1,9 @@
 package commands;
 
+import sys.io.File;
+import haxe.Json;
+import Tools.npm;
+import Tools.node;
 import CLI.error;
 import Commands.Command;
 import Sys.print;
@@ -66,6 +70,19 @@ final bootstrap:Command = {
           }
         }
       }
+    }
+
+    if (npm.available) {
+      npm.run(['init', '-y', '--name=${config.name}', '--yes'], (s) -> {}, (s) -> {}, true);
+      npm.run(['install', '-D', 'http-server'], (s) -> {}, (s) -> {}, true);
+
+      final pkg = Json.parse(File.getContent('./package.json'));
+
+      Reflect.setField(pkg, 'scripts', {
+        start: 'http-server build/js -o'
+      });
+
+      File.saveContent('./package.json', Json.stringify(pkg, null, '  '));
     }
   }
 };

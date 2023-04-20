@@ -1,3 +1,4 @@
+import OS.resCliDir;
 import CLI.error;
 import CLI.getArguments;
 import Commands.commands;
@@ -9,24 +10,26 @@ using StringTools;
 
 final VERSION = '0.1.0';
 
-function main() {
-  println('RES Command-line tool v$VERSION, ${Sys.systemName()}, build date: ${Macros.buildDate()}');
+class Main {
+  public static function main() {
+    println('RES Command-line tool v$VERSION, ${Sys.systemName()}, build date: ${Macros.buildDate()}');
 
-  initTools();
+    initTools();
 
-  commands['help'] = help;
+    commands['help'] = help;
 
-  final args = Sys.args();
+    final args = Sys.args();
 
-  if (args.length >= 1) {
-    final cmdString = args[0].toLowerCase().trim();
+    if (args.length >= 1) {
+      final cmdString = args[0].toLowerCase().trim();
 
-    if (commands.exists(cmdString)) {
-      final cmd = commands[cmdString];
-      final cmdArgs = getArguments(args.slice(1), cmd.args);
-      cmd.func(cmdArgs);
+      if (commands.exists(cmdString)) {
+        final cmd = commands[cmdString];
+        final cmdArgs = getArguments(args.slice(1), cmd.args);
+        cmd.func(cmdArgs);
+      } else
+        error('Unknown command: $cmdString');
     } else
-      error('Unknown command: $cmdString');
-  } else
-    commands['help'].func([]);
+      commands['help'].func([]);
+  }
 }

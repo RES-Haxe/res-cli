@@ -1,5 +1,7 @@
 import CLI.error;
 import OS.appExt;
+import OS.resCliDir;
+import Sys.println;
 import common.CliConfig.getCliConfig;
 import haxe.io.Path;
 import sys.io.Process;
@@ -26,16 +28,20 @@ class Tool {
 
       if (exitCode != 0) {
         if (verboseVersionCheck) {
-          Sys.println('$name version check failed');
-          Sys.println('Failed to run $cmdPath ${versionArgs.join(' ')}');
-          Sys.println('stdout: $output');
-          Sys.println('stderr: $errorOutput');
+          println('$name version check failed');
+          println('Command: $cmdPath ${versionArgs.join(' ')}');
+          println('stdout: $output');
+          println('stderr: $errorOutput');
         }
         return null;
       }
 
       return output;
     } catch (error) {
+      if (verboseVersionCheck) {
+        println('$name version check failed with an exception:');
+        println(error.message);
+      }
       return null;
     }
   }
@@ -77,7 +83,7 @@ function initTools() {
     return defaultPath;
   }
 
-  final runtimePath = Path.join([Path.directory(Sys.programPath()), 'runtime']);
+  final runtimePath = Path.join([resCliDir(), 'runtime']);
 
   final PATH = Sys.getEnv('PATH');
   final paths = [PATH, '$runtimePath/neko', '$runtimePath/haxe', '$runtimePath/hashlink'];
@@ -96,9 +102,9 @@ function initTools() {
   neko = new Tool('Neko VM', cfgPath('neko', '$runtimePath/neko/${appExt('neko')}'), ['-version'], true);
   haxe = new Tool('Haxe Compiler', cfgPath('haxe', '$runtimePath/haxe/${appExt('haxe')}'), ['--version'], true);
   haxelib = new Tool('Haxelib', cfgPath('haxelib', '$runtimePath/haxe/${appExt('haxelib')}'), ['version'], true);
-  hl = new Tool('HashLink VM', cfgPath('hl', '$runtimePath/hashlink/${appExt('hl')}'), ['--version'], true);
+  hl = new Tool('HashLink VM', cfgPath('hl', '$runtimePath/hashlink/${appExt('hl')}'), ['--version']);
 
-  if (!(haxe.available && haxelib.available && hl.available))
+  if (!(haxe.available && haxelib.available))
     error('Haxe, Haxelib or HashLink is missing');
 
   node = new Tool('Node.Js', cfgPath('node', 'node'), ['-v'], (v) -> v.substr(1));

@@ -1,6 +1,7 @@
 package common;
 
 import CLI.error;
+import OS.resCliDir;
 import haxe.Json;
 import haxe.io.Path;
 import sys.FileSystem;
@@ -10,7 +11,7 @@ import types.ResProjectConfig.PlatformId;
 using Reflect;
 
 function getCoreDeps() {
-  final coreDepsFile = Path.join([Path.directory(Sys.programPath()), 'coreDeps.json']);
+  final coreDepsFile = Path.join([resCliDir(), 'coreDeps.json']);
 
   if (!FileSystem.exists(coreDepsFile))
     error('coreDeps.json file not found ($coreDepsFile)');

@@ -7,6 +7,7 @@ import Hxml.writeHxmlFile;
 import OS.appExt;
 import OS.copyTree;
 import OS.relativizePath;
+import OS.resCliDir;
 import Sys.println;
 import common.CliConfig;
 import common.ProjectConfig.PROJECT_CONFIG_FILENAME;
@@ -24,7 +25,7 @@ final HAXE_DIR = 'haxe';
 final HL_DIR = 'hl';
 
 function templateList()
-  return FileSystem.readDirectory(Path.join([Sys.programPath().directory(), 'templates']));
+  return FileSystem.readDirectory(Path.join([resCliDir(), 'templates']));
 
 final init:Command = {
   desc: 'Initialize a RES project',
@@ -42,7 +43,7 @@ final init:Command = {
       name: 'dir',
       type: STRING,
       desc: 'Directory to initialize the project in. Use "." to initialize the project in the current directory',
-      defaultValue: (?prev) -> Path.join([Sys.getCwd(), prev['name']]),
+      defaultValue: (?prev) -> Path.join([Sys.getCwd(), prev != null ? prev['name'] : 'project-name']),
       requred: false,
       interactive: false,
       example: './my_game'
@@ -90,7 +91,7 @@ final init:Command = {
 
     final template = args['template'];
 
-    final templatePath = Path.join([Path.directory(Sys.programPath()), 'templates', template]);
+    final templatePath = Path.join([resCliDir(), 'templates', template]);
 
     if (!FileSystem.exists(templatePath))
       return error('Template <$template> not found');
@@ -125,7 +126,7 @@ final init:Command = {
 
       File.saveContent(PROJECT_CONFIG_FILENAME, Json.stringify(projectConfig, null, '  '));
 
-      final runtime_path = Path.join([Path.directory(Sys.programPath()), 'runtime']);
+      final runtime_path = Path.join([resCliDir(), 'runtime']);
 
       final cliConfig:CliConfig = {
         tools: {

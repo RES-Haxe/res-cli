@@ -6,7 +6,9 @@ import Hxml.writeHxmlFile;
 import Sys.print;
 import Sys.println;
 import Tools.haxe;
+import Tools.npm;
 import common.ProjectConfig.getProjectConfig;
+import haxe.zip.Tools;
 import types.ResProjectConfig.PlatformId;
 
 final run:Command = {
@@ -26,7 +28,7 @@ final run:Command = {
     final config = getProjectConfig();
 
     if (['hl', 'js'].indexOf(args['platform']) == -1)
-      error('Unsupported platform: "${args['platform']}"');
+      error('Unsupported platform: "${args['platform']}" (available: hl, js)');
 
     final platform:PlatformId = cast args['platform'];
 
@@ -45,9 +47,14 @@ final run:Command = {
 
     switch (platform) {
       case hl:
+        if (!Tools.hl.available)
+          return error('${Tools.hl.name} is not available');
+
         Tools.hl.run(['${config.build.path}/hl/hlboot.dat'], true);
       case js:
-        Sys.println('TBD');
+        if (!Tools.node.available)
+          return error('${Tools.node.name} is not available');
+        npm.run(['start'], (s) -> println(s), (s) -> println(s), true);
       case _:
     }
 

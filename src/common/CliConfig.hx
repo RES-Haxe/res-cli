@@ -2,6 +2,7 @@ package common;
 
 import CLI.error;
 import OS.getHomeDir;
+import OS.resCliDir;
 import haxe.Json;
 import sys.FileSystem;
 import sys.io.File;
@@ -27,7 +28,7 @@ function getCliConfig():CliConfig {
   if (Sys.systemName() != "Windows")
     cfg_file_path.push('/etc/res-cli');
 
-  cfg_file_path.push(Sys.programPath().directory());
+  cfg_file_path.push(resCliDir());
 
   for (path in cfg_file_path) {
     final cfg_filename = Path.join([path, CLI_CONFIG_FILENAME]);

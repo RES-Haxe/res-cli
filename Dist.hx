@@ -1,3 +1,4 @@
+import sys.FileSystem;
 import sys.io.Process;
 import Network.downloadFile;
 import OS.appExt;
@@ -24,8 +25,18 @@ function main() {
   createDirectory('dist');
 
   println('Copy executable');
+
+  final built_exe = appExt('out/cpp/Main');
   final res_exe = appExt('./dist/res');
-  copy(appExt('out/cpp/Main'), res_exe);
+
+  if (FileSystem.exists(built_exe)) {
+    copy(built_exe, res_exe);
+  } else {
+    println('WARNING: File not found <$built_exe>. Creating a Interp package');
+    copyTree('./src', './dist/src');
+    copy('./res', './dist/res');
+  }
+
   if (sys_name != 'windows')
     Sys.command('chmod', ['+x', res_exe]);
 
