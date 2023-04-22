@@ -1,6 +1,4 @@
 import Bios.bios;
-import res.RES;
-import res.rom.Rom;
 
 using Std;
 
