@@ -1,5 +1,6 @@
 package commands;
 
+import commands.Build.build;
 import CLI.error;
 import Commands.Command;
 import Hxml.writeHxmlFile;
@@ -25,23 +26,10 @@ final run:Command = {
     }
   ],
   func: function(args:Map<String, String>) {
-    final config = getProjectConfig();
-
-    if (['hl', 'js'].indexOf(args['platform']) == -1)
-      error('Unsupported platform: "${args['platform']}" (available: hl, js)');
+    build.func(args);
 
     final platform:PlatformId = cast args['platform'];
-
-    final hxmlFile = writeHxmlFile(config, platform);
-
-    print('Build: ');
-    final exitCode = haxe.run([hxmlFile], (s) -> {}, (err) -> {
-      Sys.stderr().writeString('$err\n');
-    }, true);
-    println('');
-
-    if (exitCode != 0)
-      return error('Build failed');
+    final config = getProjectConfig();
 
     print('Run: ');
 

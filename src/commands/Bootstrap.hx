@@ -74,12 +74,14 @@ final bootstrap:Command = {
 
     if (npm.available) {
       npm.run(['init', '-y', '--name=${config.name}', '--yes'], (s) -> {}, (s) -> {}, true);
-      npm.run(['install', '-D', 'http-server'], (s) -> {}, (s) -> {}, true);
+      npm.run(['install', '-D', 'http-server', 'nodemon', 'concurrently'], (s) -> {}, (s) -> {}, true);
 
       final pkg = Json.parse(File.getContent('./package.json'));
 
       Reflect.setField(pkg, 'scripts', {
-        start: 'http-server build/js -o'
+        serve: 'http-server build/js -o',
+        start: 'concurrently "npm run watch" "npm run serve"',
+        watch: 'nodemon --watch src/**/*.* --exec res build js'
       });
 
       File.saveContent('./package.json', Json.stringify(pkg, null, '  '));
