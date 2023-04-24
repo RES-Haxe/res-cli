@@ -1,3 +1,4 @@
+import commands.Dist.dist;
 import CLI.Argument;
 import commands.Bootstrap.bootstrap;
 import commands.Build.build;
@@ -14,6 +15,7 @@ typedef Command = {
 final commands:Map<String, Command> = [
   'bootstrap' => bootstrap,
   'build' => build,
+  'dist' => dist,
   'init' => init,
   'run' => run,
   'tools' => tools,

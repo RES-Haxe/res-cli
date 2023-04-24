@@ -1,13 +1,12 @@
 package commands;
 
-import commands.Build.build;
 import CLI.error;
 import Commands.Command;
-import Hxml.writeHxmlFile;
 import Sys.print;
 import Sys.println;
-import Tools.haxe;
 import Tools.npm;
+import commands.Build.build;
+import commands.common.PlatformArg.platformArg;
 import common.ProjectConfig.getProjectConfig;
 import haxe.zip.Tools;
 import types.ResProjectConfig.PlatformId;
@@ -15,15 +14,7 @@ import types.ResProjectConfig.PlatformId;
 final run:Command = {
   desc: "Run the project",
   args: [
-    {
-      name: 'platform',
-      desc: 'Platform to run the programm',
-      requred: true,
-      defaultValue: (?prev) -> 'hl',
-      type: ENUM(['hl', 'js']),
-      interactive: false,
-      example: 'hl'
-    }
+    platformArg
   ],
   func: function(args:Map<String, String>) {
     build.func(args);
