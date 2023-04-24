@@ -13,6 +13,8 @@ import common.ProjectConfig.getProjectConfig;
 import haxe.io.Path;
 import sys.FileSystem.*;
 
+using StringTools;
+
 final dist:Command = {
   desc: 'Prepare a package for distribution',
   args: [platformArg],
@@ -31,8 +33,11 @@ final dist:Command = {
         createDirectory('dist/hl');
 
         println('Copy runtime files...');
-        copyTree(Path.join([resCliDir(), 'runtime', 'hashlink']), 'dist/hl');
-        wipeDirectory('dist/hl/include');
+        copyTree(Path.join([resCliDir(), 'runtime', 'hashlink']), 'dist/hl', function(path:String):Bool {
+          if (path.endsWith('include') || path.endsWith('.lib'))
+            return false;
+          return true;
+        });
 
         final exeName = appExt('dist/hl/${projectConfig.dist.exeName}');
 

@@ -17,14 +17,17 @@ function getHomeDir() {
 /**
   Copy file tree
 **/
-function copyTree(from:String, to:String, verbose:Bool = false) {
+function copyTree(from:String, to:String, verbose:Bool = false, ?shouldCopy:String->Bool) {
   if (from.isDirectory()) {
     if (verbose)
       Sys.println('D $from -> $to');
     to.createDirectory();
 
     for (item in from.readDirectory()) {
-      copyTree(Path.join([from, item]), Path.join([to, item]));
+      final itemPath = Path.join([from, item]);
+      if (shouldCopy != null && !shouldCopy(itemPath))
+        continue;
+      copyTree(itemPath, Path.join([to, item]));
     }
   } else {
     if (verbose)
@@ -43,9 +46,17 @@ function wipeDirectory(dirPath:String) {
   if (!FileSystem.isDirectory(dirPath))
     return;
 
-  if (Sys.systemName() == 'Windows')
-    command('cmd', ['/c', 'rmdir', '/Q', '/S', dirPath]);
-  else
+  if (Sys.systemName() == 'Windows') {
+    for (item in dirPath.readDirectory()) {
+      final path = Path.join([dirPath, item]);
+
+      if (FileSystem.isDirectory(path)) {
+        wipeDirectory(path);
+        FileSystem.deleteDirectory(path);
+      } else
+        FileSystem.deleteFile(path);
+    }
+  } else
     command('rm', ['-rf', dirPath]);
 }
 
